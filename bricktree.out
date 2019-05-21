@@ -1,0 +1,24 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Previous Work}{}% 2
+\BOOKMARK [1][-]{section.3}{Bricktrees}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Data Layout}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{Bricktree Overhead}{section.3}% 5
+\BOOKMARK [2][-]{subsection.3.3}{Hierarchy Generation in Parallel}{section.3}% 6
+\BOOKMARK [1][-]{section.4}{Volume Integration}{}% 7
+\BOOKMARK [2][-]{subsection.4.1}{C/C++ Serial Implementation}{section.4}% 8
+\BOOKMARK [2][-]{subsection.4.2}{ISPC Vectorized Implementation}{section.4}% 9
+\BOOKMARK [2][-]{subsection.4.3}{64-bit Addressing}{section.4}% 10
+\BOOKMARK [2][-]{subsection.4.4}{Sampling Optimization}{section.4}% 11
+\BOOKMARK [1][-]{section.5}{Ray-Guided Progressive Rendering}{}% 12
+\BOOKMARK [2][-]{subsection.5.1}{Valuebrick Streaming}{section.5}% 13
+\BOOKMARK [3][-]{subsubsection.5.1.1}{Progressive Sampling}{subsection.5.1}% 14
+\BOOKMARK [3][-]{subsubsection.5.1.2}{Valuebrick Loading Strategy}{subsection.5.1}% 15
+\BOOKMARK [2][-]{subsection.5.2}{Early Tree Traversal Termination}{section.5}% 16
+\BOOKMARK [3][-]{subsubsection.5.2.1}{Level-of-Detail Control}{subsection.5.2}% 17
+\BOOKMARK [3][-]{subsubsection.5.2.2}{Culling with Transfer Function}{subsection.5.2}% 18
+\BOOKMARK [1][-]{section.6}{Results}{}% 19
+\BOOKMARK [2][-]{subsection.6.1}{Existing OSPRay Renderer vs. Bricktree Module}{section.6}% 20
+\BOOKMARK [2][-]{subsection.6.2}{Choice of Brick Size}{section.6}% 21
+\BOOKMARK [2][-]{subsection.6.3}{Bricktree Compression}{section.6}% 22
+\BOOKMARK [2][-]{subsection.6.4}{Bricktree Generation}{section.6}% 23
+\BOOKMARK [1][-]{section.7}{Conclusion}{}% 24

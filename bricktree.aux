@@ -1,0 +1,234 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{guo2014formation}
+\citation{cohen2002three}
+\citation{scivisdata}
+\citation{moser1999direct}
+\citation{guo2014formation}
+\citation{cohen2002three}
+\citation{scivisdata}
+\citation{moser1999direct}
+\citation{keim2013big}
+\citation{beyer2014survey}
+\citation{crassin2009gigavoxels,engel2011cera,hadwiger2008interactive}
+\citation{smelyanskiy2009,knoll2011full,wald2017ospray}
+\citation{childs2006scalable,peterka2008parallel,howison2012hybrid}
+\newlabel{fig:magnetic}{{}{1}{}{Doc-Start}{}}
+\newlabel{fig:magnetic@cref}{{}{1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Screenshots from our high-fidelity interactive volume visualization renderer. Top left: volume rendering of a $512^3$ magnetic reconnection dataset\nobreakspace  {}\cite  {guo2014formation}. Top middle: volume rendering of the $2048\times 2048\times 1920$ Richtmyer-Meshkov instability (RMI)\nobreakspace  {}\cite  {cohen2002three}. Top right: visualization of a $2048\times 2048\times 2612$ cardiac volume\nobreakspace  {}\cite  {scivisdata}. Bottom: visualization of the $10240\times 7680\times 1356$ DNS dataset\nobreakspace  {}\cite  {moser1999direct}. All images are rendered with surface shading.\relax }}{1}{figure.1}}
+\newlabel{fig:teaser}{{1}{1}{Screenshots from our high-fidelity interactive volume visualization renderer. Top left: volume rendering of a $512^3$ magnetic reconnection dataset~\cite {guo2014formation}. Top middle: volume rendering of the $2048\times 2048\times 1920$ Richtmyer-Meshkov instability (RMI)~\cite {cohen2002three}. Top right: visualization of a $2048\times 2048\times 2612$ cardiac volume~\cite {scivisdata}. Bottom: visualization of the $10240\times 7680\times 1356$ DNS dataset~\cite {moser1999direct}. All images are rendered with surface shading.\relax }{figure.1}{}}
+\newlabel{fig:teaser@cref}{{[figure][1][]1}{1}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}}
+\newlabel{sec:introduction}{{1}{1}{Introduction}{section.1}{}}
+\newlabel{sec:introduction@cref}{{[section][1][]1}{1}}
+\citation{wald2017ospray,wang2018cpu}
+\citation{wu2018visit}
+\citation{knoll2011full,wald2017ospray}
+\citation{hadwiger2018sparseleap}
+\citation{levoy1990efficient,kruger2003acceleration}
+\citation{childs2010extreme}
+\citation{childs2006scalable,howison2012hybrid,peterka2008parallel,eilemann2009equalizer,fogal2010large,beyer2011distributed}
+\citation{howison2012hybrid}
+\citation{wu2018visit}
+\citation{feng2015parallel}
+\citation{beyer2014survey}
+\citation{li2003empty}
+\citation{crassin2007interactive,crassin2009gigavoxels}
+\citation{engel2011cera}
+\citation{hadwiger2012interactive}
+\citation{wu2018visit}
+\citation{kumar2011pidx}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces An illustration of the layout of the bricktree structure. Each brick is represented with a valuebrick (colored in purple), an indexBrickID and an optional indexbrick (colored in light blue). The indexBrickID stores the index of the indexbrick if a node has one. Otherwise, -1 is stored. Both valuebricks and indexbricks contain $N^3$ cells. Each cell encodes a float value in a valuebrick or an int32 reference in an indexbrick.\relax }}{2}{figure.caption.2}}
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:bricktree_layout}{{2}{2}{An illustration of the layout of the bricktree structure. Each brick is represented with a valuebrick (colored in purple), an indexBrickID and an optional indexbrick (colored in light blue). The indexBrickID stores the index of the indexbrick if a node has one. Otherwise, -1 is stored. Both valuebricks and indexbricks contain $N^3$ cells. Each cell encodes a float value in a valuebrick or an int32 reference in an indexbrick.\relax }{figure.caption.2}{}}
+\newlabel{fig:bricktree_layout@cref}{{[figure][2][]2}{2}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Previous Work}{2}{section.2}}
+\citation{crassin2009gigavoxels}
+\citation{gobbetti2008single}
+\citation{knoll2006interactive}
+\citation{lefebvre2005octree}
+\citation{crassin2009gigavoxels}
+\citation{wald2001interactive,procopiuc2003bkd,wald2005faster}
+\citation{fogal2013analysis}
+\citation{fogal2013analysis}
+\citation{hadwiger2012interactive}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Bricktrees}{3}{section.3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Comparision of an octree, an $N^3$-tree and a bricktree(2D representation). An octree has a branching factor of 8 and allows for dividing a node by 8; A $N^3$-tree has a branching factor of 8 and allows for dividing a node by $N^3$; A bricktree has a branching factor of $N^3$ and allows for dividing a node by $N^3$.\relax }}{3}{figure.caption.3}}
+\newlabel{fig:tree_comparision}{{3}{3}{Comparision of an octree, an $N^3$-tree and a bricktree(2D representation). An octree has a branching factor of 8 and allows for dividing a node by 8; A $N^3$-tree has a branching factor of 8 and allows for dividing a node by $N^3$; A bricktree has a branching factor of $N^3$ and allows for dividing a node by $N^3$.\relax }{figure.caption.3}{}}
+\newlabel{fig:tree_comparision@cref}{{[figure][3][]3}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Data Layout}{3}{subsection.3.1}}
+\newlabel{sec:bricktree_layout}{{3.1}{3}{Data Layout}{subsection.3.1}{}}
+\newlabel{sec:bricktree_layout@cref}{{[subsection][1][3]3.1}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Bricktree Overhead}{3}{subsection.3.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Hierarchy Generation in Parallel}{3}{subsection.3.3}}
+\newlabel{sec:hierarchy_generation}{{3.3}{3}{Hierarchy Generation in Parallel}{subsection.3.3}{}}
+\newlabel{sec:hierarchy_generation@cref}{{[subsection][3][3]3.3}{3}}
+\citation{wald2014embree}
+\citation{pharr2012ispc}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces The recursive function for constructing a bricktree. $N,T$ is defined as a template parameters. Threshold is a customized parameter for ``compression''.\relax }}{4}{algorithm.1}}
+\newlabel{alg:bricktree}{{1}{4}{The recursive function for constructing a bricktree. $N,T$ is defined as a template parameters. Threshold is a customized parameter for ``compression''.\relax }{algorithm.1}{}}
+\newlabel{alg:bricktree@cref}{{[algorithm][1][]1}{4}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Volume Integration}{4}{section.4}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces Pseudocode on sampling a given point $p$ and traversal of the bricktree structure \relax }}{4}{algorithm.2}}
+\newlabel{alg:sample}{{2}{4}{Pseudocode on sampling a given point $p$ and traversal of the bricktree structure \relax }{algorithm.2}{}}
+\newlabel{alg:sample@cref}{{[algorithm][2][]2}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}C/C++ Serial Implementation}{4}{subsection.4.1}}
+\citation{wald_2018}
+\citation{fogal2013analysis}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {3}{\ignorespaces Pseudocode for serially calling the C++ version of sampling function from ISPC code. \relax }}{5}{algorithm.3}}
+\newlabel{alg:ispc_sample}{{3}{5}{Pseudocode for serially calling the C++ version of sampling function from ISPC code. \relax }{algorithm.3}{}}
+\newlabel{alg:ispc_sample@cref}{{[algorithm][3][]3}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}ISPC Vectorized Implementation}{5}{subsection.4.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}64-bit Addressing}{5}{subsection.4.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Sampling Optimization}{5}{subsection.4.4}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {4}{\ignorespaces Sampling function with progressive rendering on top of our bricktree structure\relax }}{5}{algorithm.4}}
+\newlabel{alg:sample_and_stream}{{4}{5}{Sampling function with progressive rendering on top of our bricktree structure\relax }{algorithm.4}{}}
+\newlabel{alg:sample_and_stream@cref}{{[algorithm][4][]4}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Ray-Guided Progressive Rendering}{5}{section.5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces An illustration of streaming the valuebrick by level. Colored nodes are requested in current time. The red arrow indicates the loading sequence.\relax }}{5}{figure.caption.4}}
+\newlabel{fig:loadbylevel}{{4}{5}{An illustration of streaming the valuebrick by level. Colored nodes are requested in current time. The red arrow indicates the loading sequence.\relax }{figure.caption.4}{}}
+\newlabel{fig:loadbylevel@cref}{{[figure][4][]4}{5}}
+\citation{crassin2009gigavoxels}
+\citation{hadwiger2012interactive}
+\citation{crassin2009gigavoxels}
+\citation{ferster2012interactive,wang2018association}
+\newlabel{fig:streambytree}{{5a}{6}{Stream by bricktree\relax }{figure.caption.5}{}}
+\newlabel{fig:streambytree@cref}{{[subfigure][1][5]5a}{6}}
+\newlabel{sub@fig:streambytree}{{a}{6}{Stream by bricktree\relax }{figure.caption.5}{}}
+\newlabel{sub@fig:streambytree@cref}{{[subfigure][1][5]5a}{6}}
+\newlabel{fig:streambybrick}{{5b}{6}{Stream by valuebrick\relax }{figure.caption.5}{}}
+\newlabel{fig:streambybrick@cref}{{[subfigure][2][5]5b}{6}}
+\newlabel{sub@fig:streambybrick}{{b}{6}{Stream by valuebrick\relax }{figure.caption.5}{}}
+\newlabel{sub@fig:streambybrick@cref}{{[subfigure][2][5]5b}{6}}
+\newlabel{fig:streambylevel}{{5c}{6}{Stream by tree level\relax }{figure.caption.5}{}}
+\newlabel{fig:streambylevel@cref}{{[subfigure][3][5]5c}{6}}
+\newlabel{sub@fig:streambylevel}{{c}{6}{Stream by tree level\relax }{figure.caption.5}{}}
+\newlabel{sub@fig:streambylevel@cref}{{[subfigure][3][5]5c}{6}}
+\newlabel{fig:streambylevel}{{5d}{6}{Ground truth\relax }{figure.caption.5}{}}
+\newlabel{fig:streambylevel@cref}{{[subfigure][4][5]5d}{6}}
+\newlabel{sub@fig:streambylevel}{{d}{6}{Ground truth\relax }{figure.caption.5}{}}
+\newlabel{sub@fig:streambylevel@cref}{{[subfigure][4][5]5d}{6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces A comparison of rendering image of the DNS dataset with three valuebrick loading strategies at frame 100. Stream by level shows more detail and smoother data refinement.\relax }}{6}{figure.caption.5}}
+\newlabel{fig:streamstrategy}{{5}{6}{A comparison of rendering image of the DNS dataset with three valuebrick loading strategies at frame 100. Stream by level shows more detail and smoother data refinement.\relax }{figure.caption.5}{}}
+\newlabel{fig:streamstrategy@cref}{{[figure][5][]5}{6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Valuebrick Streaming}{6}{subsection.5.1}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.1.1}Progressive Sampling}{6}{subsubsection.5.1.1}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.1.2}Valuebrick Loading Strategy}{6}{subsubsection.5.1.2}}
+\citation{rusinkiewicz2000qsplat}
+\citation{guo2014formation}
+\citation{cohen2002three}
+\citation{scivisdata}
+\citation{moser1999direct}
+\citation{fogal2013analysis,wu2018visit,knoll2006interactive}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Early Tree Traversal Termination}{7}{subsection.5.2}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.1}Level-of-Detail Control}{7}{subsubsection.5.2.1}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.2}Culling with Transfer Function}{7}{subsubsection.5.2.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Results}{7}{section.6}}
+\newlabel{fig:exp_ospray_bricktree_framerate}{{6a}{7}{Overall performance\relax }{figure.caption.6}{}}
+\newlabel{fig:exp_ospray_bricktree_framerate@cref}{{[subfigure][1][6]6a}{7}}
+\newlabel{sub@fig:exp_ospray_bricktree_framerate}{{a}{7}{Overall performance\relax }{figure.caption.6}{}}
+\newlabel{sub@fig:exp_ospray_bricktree_framerate@cref}{{[subfigure][1][6]6a}{7}}
+\newlabel{fig:exp_ospray_bricktree_waitingtime}{{6b}{7}{Waiting time before rendering the first frame\relax }{figure.caption.6}{}}
+\newlabel{fig:exp_ospray_bricktree_waitingtime@cref}{{[subfigure][2][6]6b}{7}}
+\newlabel{sub@fig:exp_ospray_bricktree_waitingtime}{{b}{7}{Waiting time before rendering the first frame\relax }{figure.caption.6}{}}
+\newlabel{sub@fig:exp_ospray_bricktree_waitingtime@cref}{{[subfigure][2][6]6b}{7}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces A comparison of overall performance and loading time between existing OSPRay volume renderer and our bricktree module. The evaluation was run on bricktree with a brick size of 4.\relax }}{7}{figure.caption.6}}
+\newlabel{fig:exp_ospray_bricktree}{{6}{7}{A comparison of overall performance and loading time between existing OSPRay volume renderer and our bricktree module. The evaluation was run on bricktree with a brick size of 4.\relax }{figure.caption.6}{}}
+\newlabel{fig:exp_ospray_bricktree@cref}{{[figure][6][]6}{7}}
+\citation{fogal2013analysis}
+\citation{fogal2013analysis}
+\citation{fogal2013analysis}
+\citation{fogal2013analysis}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Existing OSPRay Renderer vs. Bricktree Module}{8}{subsection.6.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Choice of Brick Size}{8}{subsection.6.2}}
+\newlabel{sec:exp_bricksize}{{6.2}{8}{Choice of Brick Size}{subsection.6.2}{}}
+\newlabel{sec:exp_bricksize@cref}{{[subsection][2][6]6.2}{8}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces An evaluation of tree build time, tree size, loading time, stream performance (s/1000 valuebricks) and overall performance with different brick sizes on a sparse dataset (RMI) and a dense dataset (DNS). The evaluataion was run on FSM. The tree build process was executed in parallel with eight processors.\relax }}{8}{table.caption.7}}
+\newlabel{table:brick_size}{{1}{8}{An evaluation of tree build time, tree size, loading time, stream performance (s/1000 valuebricks) and overall performance with different brick sizes on a sparse dataset (RMI) and a dense dataset (DNS). The evaluataion was run on FSM. The tree build process was executed in parallel with eight processors.\relax }{table.caption.7}{}}
+\newlabel{table:brick_size@cref}{{[table][1][]1}{8}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces A comparison of tree build time, size ratio (tree size / volume size) and overall performance with different thresholds on the DNS dataset.\relax }}{8}{figure.caption.8}}
+\newlabel{fig:exp_threshold}{{7}{8}{A comparison of tree build time, size ratio (tree size / volume size) and overall performance with different thresholds on the DNS dataset.\relax }{figure.caption.8}{}}
+\newlabel{fig:exp_threshold@cref}{{[figure][7][]7}{8}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Bricktree Compression}{8}{subsection.6.3}}
+\citation{lindstrom2014fixed}
+\bibstyle{abbrv-doi}
+\bibdata{bricktree}
+\bibcite{beyer2014survey}{1}
+\bibcite{beyer2011distributed}{2}
+\bibcite{childs2006scalable}{3}
+\bibcite{childs2010extreme}{4}
+\bibcite{cohen2002three}{5}
+\bibcite{crassin2007interactive}{6}
+\bibcite{crassin2009gigavoxels}{7}
+\bibcite{eilemann2009equalizer}{8}
+\bibcite{engel2011cera}{9}
+\bibcite{feng2015parallel}{10}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces A comparison of the output image rendered with four thresholds on the magnetic dataset (512\nobreakspace  {}MB). With an appropriate threshold, such as 0.05, we achieve significant performance improvement and produce a final image that is slightly different with ground truth (thres: 0). \relax }}{9}{figure.caption.9}}
+\newlabel{fig:exp_threshold_2}{{8}{9}{A comparison of the output image rendered with four thresholds on the magnetic dataset (512~MB). With an appropriate threshold, such as 0.05, we achieve significant performance improvement and produce a final image that is slightly different with ground truth (thres: 0). \relax }{figure.caption.9}{}}
+\newlabel{fig:exp_threshold_2@cref}{{[figure][8][]8}{9}}
+\newlabel{fig:exp_buildtime_1}{{9a}{9}{RMI\relax }{figure.caption.10}{}}
+\newlabel{fig:exp_buildtime_1@cref}{{[subfigure][1][9]9a}{9}}
+\newlabel{sub@fig:exp_buildtime_1}{{a}{9}{RMI\relax }{figure.caption.10}{}}
+\newlabel{sub@fig:exp_buildtime_1@cref}{{[subfigure][1][9]9a}{9}}
+\newlabel{fig:exp_buildtime_2}{{9b}{9}{Cardiac\relax }{figure.caption.10}{}}
+\newlabel{fig:exp_buildtime_2@cref}{{[subfigure][2][9]9b}{9}}
+\newlabel{sub@fig:exp_buildtime_2}{{b}{9}{Cardiac\relax }{figure.caption.10}{}}
+\newlabel{sub@fig:exp_buildtime_2@cref}{{[subfigure][2][9]9b}{9}}
+\newlabel{fig:exp_buildtime_3}{{9c}{9}{DNS\relax }{figure.caption.10}{}}
+\newlabel{fig:exp_buildtime_3@cref}{{[subfigure][3][9]9c}{9}}
+\newlabel{sub@fig:exp_buildtime_3}{{c}{9}{DNS\relax }{figure.caption.10}{}}
+\newlabel{sub@fig:exp_buildtime_3@cref}{{[subfigure][3][9]9c}{9}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Tree build time by running the \textit  {ospRawToBrick} tool with different numbers of processes on three datasets. The brick size of the bricktree is set to 4 in this evaluation.\relax }}{9}{figure.caption.10}}
+\newlabel{fig:exp_buildtime}{{9}{9}{Tree build time by running the \textit {ospRawToBrick} tool with different numbers of processes on three datasets. The brick size of the bricktree is set to 4 in this evaluation.\relax }{figure.caption.10}{}}
+\newlabel{fig:exp_buildtime@cref}{{[figure][9][]9}{9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Bricktree Generation}{9}{subsection.6.4}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{9}{section.7}}
+\bibcite{ferster2012interactive}{11}
+\bibcite{fogal2010large}{12}
+\bibcite{fogal2013analysis}{13}
+\bibcite{gobbetti2008single}{14}
+\bibcite{guo2014formation}{15}
+\bibcite{hadwiger2018sparseleap}{16}
+\bibcite{hadwiger2012interactive}{17}
+\bibcite{hadwiger2008interactive}{18}
+\bibcite{howison2012hybrid}{19}
+\bibcite{keim2013big}{20}
+\bibcite{scivisdata}{21}
+\bibcite{knoll2011full}{22}
+\bibcite{knoll2006interactive}{23}
+\bibcite{kruger2003acceleration}{24}
+\bibcite{kumar2011pidx}{25}
+\bibcite{lefebvre2005octree}{26}
+\bibcite{levoy1990efficient}{27}
+\bibcite{li2003empty}{28}
+\bibcite{lindstrom2014fixed}{29}
+\bibcite{moser1999direct}{30}
+\bibcite{peterka2008parallel}{31}
+\bibcite{pharr2012ispc}{32}
+\bibcite{procopiuc2003bkd}{33}
+\bibcite{rusinkiewicz2000qsplat}{34}
+\bibcite{smelyanskiy2009}{35}
+\bibcite{wald_2018}{36}
+\bibcite{wald2005faster}{37}
+\bibcite{wald2017ospray}{38}
+\bibcite{wald2001interactive}{39}
+\bibcite{wald2014embree}{40}
+\bibcite{wang2018association}{41}
+\bibcite{wang2018cpu}{42}
+\bibcite{wu2018visit}{43}

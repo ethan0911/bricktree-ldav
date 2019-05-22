@@ -343,8 +343,9 @@ A proof shows in \Cref{table:brick_size} that the size of a bricktree with N = 4
 less than a bricktree with N = 2 which is technically an octree. 
 In addition, few valuebricks are located in the upper levels of the tree. Assuming a brick
 size of 4, the number of inner nodes goes down by a factor of 64 each time we go up one level
-in the tree. This holds in practice - the overhead is 8.0\% on the magnetic dataset 
-(see \Cref{fig:exp_threshold_2}) and the DNS dataset (see \Cref{table:brick_size}) with $N=4$. 
+in the tree. This holds in practice - the overhead of bricktree with $N=4$ is 8.0\% on
+the magnetic dataset (see \Cref{fig:exp_threshold_2}) and the DNS dataset (see \Cref{table:brick_size}). While the overhead of octree (bricktree with $N=2$) is 43\% 
+and 72\% respectively. 
 }
 
 %----------------------------------

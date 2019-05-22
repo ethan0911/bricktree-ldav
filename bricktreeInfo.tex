@@ -581,7 +581,7 @@ that each segment can be addressed with a 32-bit offset. More details about
 the implementation can be found in \cite{wald_2018}. 
 
 By employing this technique, our implementation can scale to the workstation's available
-memory. However, the implementation has some performance penalties, because 64-bit addressing is slightly more costly than 32-bit addressing. In an ideal case, memory accesses are mostly coherent, and only a few iterations of the aforementioned loop are necessary. \feng{In the worse case that a lot of iterations are needed, there may be performance penalties. However, the performance will be preferable to the worst case
+memory. However, the implementation has some performance penalties, because 64-bit addressing is slightly more costly than 32-bit addressing. In an ideal case, memory accesses are mostly coherent, and only a few iterations of the aforementioned loop are necessary. \feng{In a worse case that a lot of iterations are needed, there may be performance penalties. However, the performance will be preferable to the worst case
 that recompiling our application in 64-bit to yield a correct image.}
 %due to TLB walks. Nonetheless, we found that our
 %segment-based approach is preferable to recompiling our application in 64-bit mode. 
@@ -850,15 +850,19 @@ In this section, we evaluate four key aspects of our system: 1) the performance 
 volume renderer and our bricktree module; 2) the performance of the bricktree with different brick sizes;
 3) data compression using the bricktree; 4) the performance of bricktree generation. Unless otherwise noted,
 benchmarks were performed on a quad-socket workstation (FSM) with four Xeon E7-8890 v3 CPUs, with a total
-of 72 physical cores at 2.5 Ghz, along with 3 TB RAM. In the benchmark, volumes were rendered to a
-$1024 \times 768$ framebuffer, and the rendering performance was measured by calculating the average
-framerate over 100 frames.  
+of 72 physical cores at 2.5 Ghz, along with 3 TB RAM.
+\feng{All test datasets are stored on a network mounted file server over a 1Gb/s network. 
+The I/O throughput of the file system is 110 MB/s.}
+In the benchmark, volumes were rendered to a
+$1024 \times 768$ framebuffer, and the rendering performance was measured by calculating the average framerate over 100 frames. 
+\feng{Bricktree read and write bandwidths include effects from the filesystem cache, 
+which results in higher bandwidth measurements recorded than the underlying
+hardware's capability. However, these are the read/write times which would be observed
+by a user.}
 
 We tested our renderer with four datasets with sizes ranging from small (e.g., magnetic 
 reconnection volume\cite{guo2014formation}), to medium (e.g., the Richtmyer-Meshkov instability simulation
 \cite{cohen2002three} and cardiac volume\cite{scivisdata}) to extremely large (e.g., the DNS dataset \cite{moser1999direct}).
-\feng{All datasets are stored on an Isilon file server and loaded through a 1 GB ethernet connection. 
-The I/O throughput of the file system is 1.6 GB/s and 3.5 GB/s. }
 \begin{itemize}
 \item The magnetic volume, produced from kinetic simulations, is a $512^3$ float-precision dataset
 (size: 512 MB) that represents magnetic reconnection in relativistic plasmas. 

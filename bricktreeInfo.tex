@@ -178,7 +178,7 @@ Each cell encodes a float value in a valuebrick or an int32 reference in an inde
 
 \feng{Adaptive space subdivision and hierarchical data representation are
 key to interactive visualization of large-scale volumetric datasets\cite{crassin2009gigavoxels}.
-These techniques enable us to load and update the working-set on-demand to address IO latency
+These techniques enable us to load and update the working set on demand to address IO latency
 and memory limitations. As a popular hierarchical data structure for 3D space subdivision,
 the octree has been well studied for direct volume rendering\cite{gobbetti2008single}.
 Hierarchical grids feature a theoretically optimal number of traversal steps,
@@ -187,17 +187,17 @@ and thus have been overtaken as general-purpose ray tracing acceleration structu
 the $N^3$-tree, which is capable of dividing each edge by an arbitrary number N
 rather than 2. $N^3$-tree was later used in the GigaVoxel system
 \cite{crassin2009gigavoxels}. Other structures, such as 
-kd-trees, were also used in isosurface rendering with the trend of coherent
+kd-trees, are also used in isosurface rendering with the trend of coherent
 ray tracing\cite{wald2001interactive,procopiuc2003bkd,wald2005faster}. 
 }
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{tree_comparision}
-  \caption{\label{fig:tree_comparision}Comparision of an octree, an $N^3$-tree and a bricktree(2D representation).
-  An octree has a branching factor of 8 and allows for dividing a node by 8; A $N^3$-tree has a branching factor
-  of 8 and allows for dividing a node by $N^3$; A bricktree has a branching factor of $N^3$ and allows for
-  dividing a node by $N^3$.}
+  \caption{\label{fig:tree_comparision}Comparision of an octree, a $N^3$-tree and a bricktree(2D representation).
+  In 3D scenario, an octree has a branching factor of $2^3$ and allows for decomposing a node into $2^3$ cells; A $N^3$-tree has a branching factor
+  of $2^3$ and allows for decomposing a node into $N^3$ cells; A bricktree has a branching factor of $N^3$ and allows for
+  decomposing a node into $N^3$ cells.}
     %\vspace{-1em}
 \end{figure}
 %Adaptive space subdivision and hierarchical data representation are key to

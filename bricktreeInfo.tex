@@ -17,7 +17,7 @@ host systems, making interactive visualization of such data challenging.
 First, loading the full-resolution data into main memory is impractical
 due to memory limitations. Second, for large datasets, the IO latency incurred by the data 
 loading process is prohibitive in the existing volume renderer,
-even if all the data fits into memory.
+even if all the data fit into memory.
 The long IO waiting time for large dataset degrades the user experience.
 Therefore, research on novel techniques for
 data visualization, processing, storage and IO that scale to 
@@ -106,7 +106,7 @@ introducing efficient packet BVH traversal~\cite{knoll2011full,wald2017ospray},
 empty space skipping~\cite{hadwiger2018sparseleap} and
 early ray termination~\cite{levoy1990efficient,kruger2003acceleration}.
 Although efficient for visualizing moderate-size volumes on consumer desktops, 
-these methods struggle to scale to petascale or exascale datasets since they assume that the entire volume is present in memory. 
+these methods struggle to scale to petascale or exascale datasets, since they assume that the entire volume is present in memory. 
 % these methods 
 % assume that the entire volume is present in memory and struggle to scale
 % to petascale or exascale datasets.
@@ -184,9 +184,11 @@ the octree has been well studied for direct volume rendering\cite{gobbetti2008si
 Hierarchical grids feature a theoretically optimal number of traversal steps,
 and thus have been adopted as general-purpose ray-tracing acceleration structures
 \cite{knoll2006interactive}. Lefebvre et al.\cite{lefebvre2005octree} proposed
-the $N^3$-tree, which is capable of dividing each edge by an arbitrary number N
-rather than 2. $N^3$-tree was later used in the GigaVoxel system
-\cite{crassin2009gigavoxels}. Other structures, such as 
+the $N^3$-tree, which is capable of decomposing a node by an arbitrary number $N^3$ and
+has a branching factor of $N^3$.
+The GigaVoxel system \cite{crassin2009gigavoxels} also use a hierarchical data structure
+that is similar to the $N^3$-tree, but has a smaller branching factor of $2^3$.
+Other structures, such as 
 kd-trees, have also been used in isosurface rendering with the trend of coherent
 ray tracing\cite{wald2001interactive,procopiuc2003bkd,wald2005faster}. 
 }
@@ -194,8 +196,8 @@ ray tracing\cite{wald2001interactive,procopiuc2003bkd,wald2005faster}.
 \begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{tree_comparision}
-  \caption{\label{fig:tree_comparision}Comparison of an octree, a $N^3$-tree and a Bricktree (2D representation).
-  In a 3D scenario, an octree has a branching factor of $2^3$ and allows for decomposing a node into $2^3$ cells; a $N^3$-tree has a branching factor
+  \caption{\label{fig:tree_comparision}Comparison of an octree, an $N^3$-tree and a Bricktree (2D representation).
+  In a 3D scenario, an octree has a branching factor of $2^3$ and allows for decomposing a node into $2^3$ cells; an $N^3$-tree has a branching factor
   of $2^3$ and allows for decomposing a node into $N^3$ cells; a Bricktree has a branching factor of $N^3$ and allows for
   decomposing a node into $N^3$ cells.}
     %\vspace{-1em}
@@ -208,9 +210,12 @@ us to represent a structured volume in a hierarchical, multi-resolution and comp
 way (as shown in \Cref{fig:bricktree_layout}).
 Rather than encoding the large volume into a single deep Bricktree, our design
 tiles the volume into a ``Bricktree Forest'', which consists of a list of Bricktrees.
+By encoding a sub-volume into a Bricktree, we guarantee that using a 32-bit int is
+enough to index all the bricks rather than a 64-bit int. 
 This design not only is conducive to parallel tree traversal on multi-core CPU architectures,
 but also avoids encoding a large empty space when the structured volume is not a perfect
 cube ($M \neq L \neq K $).
+Overall, 
 A Bricktree is a generalization of an octree where we subdivide a node by an arbitrary number
 $N^3$ rather than by 8. Furthermore, a Bricktree is similar to an $N^3$-tree but with an arbitrary
 branching factor $N^3$ rather than by 8 (as shown in \Cref{fig:tree_comparision}). 
@@ -223,7 +228,7 @@ branching factor $N^3$ rather than by 8 (as shown in \Cref{fig:tree_comparision}
 %Rather than encode the large volume into a single deep bricktree, our design
 %tiles the volume into a bricktree forest. This design is conducive to parallel tree traversal on multi-core CPU architectures.
 
-%----------------------------------
+%-------------------------------
 \subsection{Data Layout}
 \label{sec:bricktree_layout}
 
@@ -233,20 +238,20 @@ store a data value. We denote a brick that stores data values as a ``Valuebrick'
 be thought of as nodes of a tree with branching factor $N^3$. We call such a tree a ``Bricktree''.
 Each brick can have up to $N^3$ children, where each child brick is associated with exactly one
 cell in the parent brick. If a brick does have children, the child indices are stored in an 
-``Indexbrick''. Thus, we represent a brick as a Valuebrick and an optional Indexbrick in memory. 
-Also along with a indexBrickID to indicate the corresponding relationship between the Valuebrick
+``Indexbrick''. Thus, we represent a brick as a Valuebrick and an optional Indexbrick in memory 
+and also along with an indexBrickID to indicate the corresponding relationship between the Valuebrick
 and the Indexbrick.
 }
 
 \feng{
-Each cell of a Valuebrick corresponds to a set of voxels in the volume, For a ``leaf brick''
-(e.g., $N_{16}$), one cell corresponds to exactly one voxel and the cell's value equals to the
+Each cell of a Valuebrick corresponds to a set of voxels in the volume. For a ``leaf brick''
+(e.g., $N_{16}$), one cell corresponds to exactly one voxel, and the cell's value equals the
 value of this voxel. By contrast, each cell of an ``inner brick'' (e.g., $N_0$) typically
 represents a set of voxels. Accordingly, we can assign a value to each cell by averaging
-over all voxels in this set. Each cell of an Indexbrick refers to a child brick the current
-brick has children. For a ``leaf brick'', it has no children and thus no Indexbrick. In this
-case, the indexBrickID of this brick is set to invalid (-1). While for an ``inner brick'', its
-indexbrickID refers to the right Indexbrick and the cells in this Indexbrick point to the children.
+over all voxels in this set. Each cell of an Indexbrick refers to a child brick if the current
+brick has children. A ``leaf brick'' has no children and thus no Indexbrick. In this
+case, the indexBrickID of this brick is set to invalid (-1), whereas for an ``inner brick'', its
+indexbrickID refers to the right Indexbrick, and the cells in this Indexbrick point to the children.
 In \Cref{fig:bricktree_layout}, a Valuebrick is shown in purple and an Indexbrick is in light blue. 
 }
 
@@ -296,7 +301,7 @@ gives high-level information ($N, T, D$, etc.) in \textit{XML} form;
 Due to the specific layout, our Bricktree is easy to index and the overhead is low. 
 Given a Bricktree with a brick size of 4, a data type of float and a depth of 4 ($Bricktree<4,float>$), a certain number of $4^3$ Valuebricks and $4^3$ Indexbricks will be generated when building the tree.
 In practice, leaf Valuebricks have zero overhead, since each costs 
-exactly 256 bytes for 64 float-typed cells. The only overhead lies in the 
+exactly 256 bytes for 64 float-type cells. The only overhead lies in the 
 Indexbricks and inner Valuebricks. However, few of these bricks exist relative
 to the number of leaf bricks (see  \Cref{fig:loadbylevel}).
 
@@ -305,9 +310,8 @@ In a more ideal case, where many of the inner
 nodes all point to the leaf Valuebrick, we store only about one 32-bit int (4~byte)
 for a complete leaf Valuebrick. Hence, 4~bytes are used to index 256 ``payload''
 bytes for float data. A less ideal case is that some children of inner nodes are leaves,
-while other children are inner nodes. Recall that for each inner node, we need to store 
-both a Valuebrick and an Indexbrick. 
-This will result in more memory consumption than in the ideal case.
+whereas other children are inner nodes. Recall that for each inner node, we need to store 
+both a Valuebrick and an Indexbrick, which will result in more memory consumption than in the ideal case.
 However, the overhead will still most likely be considerably less than that of an octree. 
 Benchmarks in \Cref{table:brick_size} show that the in-memory size of a Bricktree with $N = 4$
 is much smaller than a Bricktree with $N = 2$, which is an octree. 
@@ -332,7 +336,7 @@ Petascale datasets might take hours or days.
 The virtual memory architecture of \cite{hadwiger2012interactive} alleviates this
 problem by constructing the brick at runtime. However, the latency of constructing
 bricks at runtime will dramatically influence the framerate, especially when the 
-visible data is missing in memory. 
+visible data are missing in memory. 
 
 \feng{
 Our design also makes hierarchy generation more efficient. 
@@ -342,7 +346,7 @@ Normally, \textit{make} will execute only one recipe at a time.
 By specifying the ``\textit{-j}'' option, it is possible to execute many recipes simultaneously.
 Once parameters $N$, $T$ and $D$ are set, we first generate an index file over the Bricktrees
 as well as a makefile. The makefile is used to build each Bricktree in parallel.
-See \Cref{alg:bricktree} for the algorithm used to recursively construct a Bricktree. 
+\Cref{alg:bricktree} shows the algorithm for recursively constructing a Bricktree. 
 Measurements of the performance improvement from parallelization are shown in
 \Cref{fig:exp_buildtime}.
 }
@@ -393,9 +397,9 @@ Measurements of the performance improvement from parallelization are shown in
 \feng{
 In addition, our tree construction approach also supports data format conversion and compression.  
 We can easily convert an input data format to an interval format, such as double to float. 
-Furthermore, we allow the user to set a threshold ($t$) that determine which input regions
+Furthermore, we allow the user to set a threshold ($t$) that determines which input regions
 can be safely collapsed into a single node. For instance, consider a cell $C$ with a child brick $B$.
-Let $Value(b)$ be a function that obtains the value at cell $b \in B$, and $t$ be the threshold:}
+Let $Value(b)$ be a function that obtains the value at cell $b \in B$ and $t$ be the threshold:}
 
 \begin{equation} \label{eq:collapse_thresh}
 \left(\max_{b \in B} Value(b)\right) - \left(\min_{b \in B} Value(b)\right) \leq t
@@ -556,7 +560,7 @@ For performance reasons, ISPC uses 32-bit addressing by default, even with
 a 64-bit compilation target. In this addressing mode, ISPC maps all addresses for
 \textbf{varying} array access to vectors of 32-bit offsets relative to a shared
 64-bit base pointer. However, this approach limits the volume size to 4~GB.
-When our data exceeds 4~GB, 32-bit addressing will fail in \cref{alg:sample},
+When our data exceed 4~GB, 32-bit addressing will fail in \cref{alg:sample},
 line 19. Hence, we need to treat each array as consisting of smaller
 segments, and then iterate over all unique segments addressed by a vector using
 ISPC's \textbf{\textit{foreach\_unique}} statement. To do so, we can guarantee 
@@ -710,7 +714,7 @@ In our solution, the \textit{isrequested} and \textit{isloaded} flags are
 used to identify the current status of a Valuebrick. In our sample function, 
 the \textit{isrequested} flag of a Valuebrick is set when we need to load the Valuebrick
 into memory, which allows us to implement a visibility-based solution that requests only
-data that is inside the view frustum. 
+data that are inside the view frustum. 
 
 
 %---------------------
@@ -841,7 +845,7 @@ The I/O throughput of the file system is 110 MB/s.}
 In the benchmark, volumes were rendered to a
 $1024 \times 768$ framebuffer, and the rendering performance was measured by calculating the average framerate over 100 frames. 
 \feng{Bricktree read and write bandwidths include effects from the filesystem cache, 
-which may results in measured bandwidth value that appear to exceed the underlying
+which may result in a measured bandwidth value that appears to exceed the underlying
 hardware's capability. Nonetheless, the measured read/write times are the ones that would be observed
 by a real user.}
 
@@ -857,7 +861,7 @@ postmortem porcine hearts. The resolution of the data is $2048 \times 2048 \time
 type of int16, the size of the data goes up to 21 GB. 
 %  Alginate curing agents were injected into ventricles to provide rigidity and radiopaque agents were injected into the coronary arteries to distinguish microvasculature from the rest of the tissue
 \item The DNS, produced by the Institute for Computational Engineering and Science (ICES) at the University
-of Texas-Austin is a single $10240 \times 7680 \times 1536$ double precision volume (size: 900 GB) from a turbulent flow simulation. 
+of Texas-Austin, is a single $10240 \times 7680 \times 1536$ double precision volume (size: 900 GB) from a turbulent flow simulation. 
 \end{itemize}
 
 \begin{figure}[h]
@@ -996,7 +1000,7 @@ performance is the best when a brick size of 16 is used.
 \feng{Recall that a Bricktree is an octree when the brick size N is set to 2.
 As shown in \Cref{table:brick_size}, a Bricktree with an appropriate 
 brick size outperforms an octree in terms of framerate, tree size,
-tree construction time, and loading time. 
+tree construction time and loading time. 
 }
 
 \begin{figure*}[t]
@@ -1026,7 +1030,7 @@ thresholds is beyond the scope of this paper.
 However, \Cref{fig:exp_threshold_2}
 depicts the output image of the magnetic dataset rendered with four thresholds. Aside from the performance improvement, 
 we observe that only a slight difference can be discerned in the final images if we select an appropriate threshed (e.g., 0.05) for the magnetic dataset.
-On the other hand, artifacts emerge when the data is visualized with a large threshold (e.g., 0.3).
+On the other hand, artifacts emerge when the data are visualized with a large threshold (e.g., 0.3).
 % Qualitatively, 
 % there is only a slight difference in the output images.
 

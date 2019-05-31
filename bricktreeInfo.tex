@@ -162,15 +162,7 @@ dataset into memory with 64 processors on Stampede2.
 
 To address these challenges, we decompose large volumes into a hierarchical 
 representation, with each node representing a small cubic brick. Within the rendering pipeline,
-we leverage ray-guided streaming and progressive rendering to reduce IO latency. 
-
-\begin{figure*}[h]
-  \centering
-    \includegraphics[width=0.99\textwidth]{BricktreeLayout}
-	\caption{\label{fig:bricktree_layout}An illustration of the layout of the Bricktree structure. Each brick (e.g. $N_0,N_1 ...$) is represented with a Valuebrick (colored in purple), an indexBrickID and an optional Indexbrick (colored in light blue). The indexBrickID stores the index of the Indexbrick if a node has one. Otherwise, -1 is stored. Both Valuebricks and Indexbricks contain $N^3$ cells. 
-Each cell encodes a float value in a Valuebrick or an int32 reference in an Indexbrick.}
-    %\vspace{-1em}
-\end{figure*}
+we leverage ray-guided streaming and progressive rendering to reduce IO latency.
 
 
 %-------------------------------------------------------------------------
@@ -187,21 +179,30 @@ and thus have been adopted as general-purpose ray-tracing acceleration structure
 the $N^3$-tree, which is capable of decomposing a node by an arbitrary number $N^3$ and
 has a branching factor of $N^3$.
 The GigaVoxel system \cite{crassin2009gigavoxels} also use a hierarchical data structure
-that is similar to the $N^3$-tree, but has a smaller branching factor of $2^3$.
-Other structures, such as 
-kd-trees, have also been used in isosurface rendering with the trend of coherent
-ray tracing\cite{wald2001interactive,procopiuc2003bkd,wald2005faster}. 
+that is similar to the $N^3$-tree, but has a smaller branching factor of $2^3$ (as shown in
+\Cref{fig:tree_comparision}).
+Other structures, such as kd-trees, have also been used in isosurface rendering with
+the trend of coherent ray tracing\cite{wald2001interactive,procopiuc2003bkd,wald2005faster}. 
 }
 
 \begin{figure}[h]
   \centering
   \includegraphics[width=\columnwidth]{tree_comparision}
-  \caption{\label{fig:tree_comparision}Comparison of an octree, an $N^3$-tree and a Bricktree (2D representation).
+  \caption{\label{fig:tree_comparision}Comparison of the data structure with an octree, the GigaVoxel's hierarchy and an $N^3$-tree (Bricktree) in 2D representation.
   In a 3D scenario, an octree has a branching factor of $2^3$ and allows for decomposing a node into $2^3$ cells; an $N^3$-tree has a branching factor
   of $2^3$ and allows for decomposing a node into $N^3$ cells; a Bricktree has a branching factor of $N^3$ and allows for
   decomposing a node into $N^3$ cells.}
     %\vspace{-1em}
 \end{figure}
+
+
+\begin{figure*}[h]
+  \centering
+    \includegraphics[width=0.99\textwidth]{BricktreeLayout}
+	\caption{\label{fig:bricktree_layout}An illustration of the layout of the Bricktree structure. Each brick (e.g. $N_0,N_1 ...$) is represented with a Valuebrick (colored in purple), an indexBrickID and an optional Indexbrick (colored in light blue). The indexBrickID stores the index of the Indexbrick if a node has one. Otherwise, -1 is stored. Both Valuebricks and Indexbricks contain $N^3$ cells. 
+Each cell encodes a float value in a Valuebrick or an int32 reference in an Indexbrick.}
+    %\vspace{-1em}
+\end{figure*}
 
 
 \feng{
@@ -210,23 +211,22 @@ us to represent a structured volume in a hierarchical, multi-resolution and comp
 way (as shown in \Cref{fig:bricktree_layout}).
 Rather than encoding the large volume into a single deep Bricktree, our design
 tiles the volume into a ``Bricktree Forest'', which consists of a list of Bricktrees.
-By encoding a sub-volume into a Bricktree, we guarantee that using a 32-bit int is
-enough to index all the bricks rather than a 64-bit int. 
+By encoding a sub-volume into a Bricktree, we guarantee that using a 32-bit int
+can safely refers to all the bricks. 
 This design not only is conducive to parallel tree traversal on multi-core CPU architectures,
 but also avoids encoding a large empty space when the structured volume is not a perfect
 cube ($M \neq L \neq K $).
-Overall, 
-A Bricktree is a generalization of an octree where we subdivide a node by an arbitrary number
-$N^3$ rather than by 8. Furthermore, a Bricktree is similar to an $N^3$-tree but with an arbitrary
-branching factor $N^3$ rather than by 8 (as shown in \Cref{fig:tree_comparision}). 
+Overall, a Bricktree is a generalization of an octree where we subdivide a node by $N^3$
+rather than by $2^3$. Furthermore, a Bricktree is similar with the $N^3$-tree on data struture,
+but different on data layout in memory. Each cell in an $N^3$-tree node either stores a data
+value or an reference to the children, whereas in a Bricktree node always store a data value. 
+In a Bricktree, we intentionally store the value and reference in seperate buffers so that we could 
+save memory by storing only one invalid reference for a brick if none cell in this brick have
+children, 
+rather than storing $N^3$ invalid references with one for each cell in an $N^3$-tree. 
+A detail introduction about the layout of Bricktree is described in the next section. 
 }
 
-%In this work, we define the ``Bricktree'' data structure, which allows us to
-%represent a structured volume in a hierarchical, multi-resolution
-%and possibly compressed way (as shown in \Cref{fig:bricktree_layout}).
-%A single bricktree is similar to an $N^3$-tree but with a larger branching factor. 
-%Rather than encode the large volume into a single deep bricktree, our design
-%tiles the volume into a bricktree forest. This design is conducive to parallel tree traversal on multi-core CPU architectures.
 
 %-------------------------------
 \subsection{Data Layout}
@@ -247,7 +247,8 @@ and the Indexbrick.
 Each cell of a Valuebrick corresponds to a set of voxels in the volume. For a ``leaf brick''
 (e.g., $N_{16}$), one cell corresponds to exactly one voxel, and the cell's value equals the
 value of this voxel. By contrast, each cell of an ``inner brick'' (e.g., $N_0$) typically
-represents a set of voxels. Accordingly, we can assign a value to each cell by averaging
+represents a set of voxels. Accordingly, we can assign a value to each cell. How to calculate 
+this value is totally your choice. In our implementation, we compute this value by averaging
 over all voxels in this set. Each cell of an Indexbrick refers to a child brick if the current
 brick has children. A ``leaf brick'' has no children and thus no Indexbrick. In this
 case, the indexBrickID of this brick is set to invalid (-1), whereas for an ``inner brick'', its
@@ -279,21 +280,24 @@ In memory, each $BrickTree<N,T>$ is represented as three linear arrays:
 \item One linear array of Valuebricks, where each Valuebrick contains
 $N \times N \times N$ values of type T.
 \item One linear array of int32 ``indexbrickIDs'', with exactly one such
-int32 per Valuebrick. If a given Valuebrick's indexbrickID is
-invalid, it does not refer to an Indexbrick and thus has no children;
+int32 per Valuebrick. If a given Valuebrick's indexbrickID is -1,
+it does not refer to an Indexbrick and thus none cell in the brick has children;
 otherwise, this ID refers to an Indexbrick in the Indexbrick array.
 \item One linear array of ``Indexbricks``, where each Indexbrick contains
-$N \times N \times N$ int32 indices. Each such index can be invalid (meaning the
+$N \times N \times N$ int32 indices. Each such index can be -1 (meaning the
 corresponding cell does not have a child); 
 if the index is greater than or equal to 0, it refers to a brick in the Valuebrick array.
 % (which in turn can have childrenreferred to it's index brick ID, etc).
 \end{enumerate}
 
-On a file system, the whole volume is represented by one ``\textit{.osp}'' file
-that contains meta-data ($N,T, (M,L,K)$ of input volume, etc). 
-Each Bricktree is stored in two files: 1) an ``\textit{.osp}'' file that
-gives high-level information ($N, T, D$, etc.) in \textit{XML} form; 
-2) an ``\textit{.ospbin}'' file that contains the three arrays in binary form.
+\feng{
+On a file system, the whole volume is represented by three types of files:
+1) one high-level file in XML format that contains meta-data ($N,T, (M,L,K)$ of input volume, etc.)
+and represents the Bricktree Forest; 
+2) one XML file for each Bricktree that gives high-level information ($N, T, D$, etc.) of the current
+bricktree. 
+3) one binary file for each Bricktree that stores the three buffers (Valuebricks, Indexbricks and indexbrickIDs). 
+}
 
 
 %----------------------------------
@@ -329,9 +333,10 @@ and 72\%, respectively.
 
 As an offline process that is usually run in advance, the performance of reorganizing the volume
 into multi-resolution bricks is mostly ignored in the volume rendering literature\cite{fogal2013analysis}. However, the performance becomes a significant
-bottleneck for large-scale datasets. As illustrated in \cite{fogal2013analysis},
+bottleneck for large-scale datasets. Fogal et al. reported that
 the runtime for building a hierarchical structure for RMI (8.1~GB, 
-$2048 \times 2048 \times 1920$) is up to 1.5 hours in the worst case and 13 minutes in the best case. 
+$2048 \times 2048 \times 1920$) is up to 1.5 hours in the worst case and
+13 minutes in the best case \cite{fogal2013analysis}.
 Petascale datasets might take hours or days. 
 The virtual memory architecture of \cite{hadwiger2012interactive} alleviates this
 problem by constructing the brick at runtime. However, the latency of constructing
@@ -340,8 +345,11 @@ visible data are missing in memory.
 
 \feng{
 Our design also makes hierarchy generation more efficient. 
-It is straightforward to construct the Bricktree Forest in parallel. The ``\textit{ospRawToBricks}''
-tool, which employs the \textit{GNU make} command, is used to meet this end.
+It is straightforward to construct the Bricktree Forest in parallel.
+Rather than parallelizing the process using $tbb::parallel\_for$, 
+our ``\textit{ospRawToBricks}'' tool employs the \textit{GNU make} command to meet the end.
+This choice benefits us to specify a customized number of trees to build in parallel in case
+that we consumer all the host memory. 
 Normally, \textit{make} will execute only one recipe at a time.
 By specifying the ``\textit{-j}'' option, it is possible to execute many recipes simultaneously.
 Once parameters $N$, $T$ and $D$ are set, we first generate an index file over the Bricktrees
@@ -406,16 +414,8 @@ Let $Value(b)$ be a function that obtains the value at cell $b \in B$ and $t$ be
 \end{equation}
 
 \feng{
-If Equation \ref{eq:collapse_thresh} holds, then $B$ and its children are ``collapsed'' into $C$, meaning that $C$ no longer points to a child brick, and is instead assigned the average value of all cells in $B$. Our default value of $t$ is 0, meaning that by default, our implementation losslessly eliminates equal-value regions. This process is also known as ``empty space skipping''.}
+If Equation \ref{eq:collapse_thresh} holds, then $B$ and its children are ``collapsed'' into $C$, meaning that $C$ no longer points to a child brick, and is instead assigned the average value of all cells in $B$. Our default value of $t$ is 0, meaning that by default, our implementation losslessly eliminates equal-value regions.}
 
-%The ``compression'' is automatically supported by letting the user specify a
-%threshold that indicates which input regions can be safely collapsed.
-%This process is also known as empty space skipping.
-%For instance, a cell will be automatically stored as a leaf 
-%if the cell's value range in an entire region is less than the threshold. 
-%The default threshold value is 0, meaning that it losslessly eliminates
-%equal-value regions.
-%}
 
 %-------------------------------------------------------------------------
 \section{Volume Integration}
@@ -433,18 +433,18 @@ node with an appropriate level-of-detail in current viewport or an unmapped node
 \begin{algorithm}
 	\caption{Pseudocode on sampling a given point $p$ and traversal of the Bricktree structure }\label{alg:sample}
 	\begin{algorithmic}[1]
-		\Procedure{Bt\_Cplus\_Sample}{$p$}
+		\Function {Bt\_Cplus\_Sample}{$p$}
         	\State $vArray[8]\gets \textit{0}$
             \State $\textit{voxelCoord[8]} \gets \textit{Calculate 8 vertex's coordinates}$
             \While{$i < 8$}
             	\State $bTreeID \gets ComputeBrickTreeID(voxelCoord[i])$
                 \State $bt \gets GetBrickTree(bTreeID)$
             	\State $vArray[i] \gets Bt\_Cplus\_GetVoxels(bt,voxelCoord[i])$
-            	\EndWhile
+            \EndWhile
             \State $result \gets lerp(vArray[8])$
-            \State \textbf{return} $result$
-    	\EndProcedure
-        \Procedure{Bt\_Cplus\_GetVoxels}{$bt, coord$}
+            \State \Return $result$
+    	\EndFunction
+        \Function {Bt\_Cplus\_GetVoxels}{$bt, coord$}
         	\State $brickID\gets \textit{0}$\Comment{top-down traversal}
             \State $brickStack.push(brickID)$
             \While{brickStack is not empty}
@@ -453,12 +453,12 @@ node with an appropriate level-of-detail in current viewport or an unmapped node
             	\State $cOffset \gets ComputeOffset(coord)$
                 \State $childBrickID \gets bt.indexBrick[ibID].child[cOffset]$
                 \If {$childBrickID = -1$} 
-                	\State \textbf{return} $bt.valueBrick[cBrickID].child[cOffset]$
+                	\State \Return $bt.valueBrick[cBrickID].child[cOffset]$
                 \Else
                 	\State $brickStack.push(childBrickID)$
                 \EndIf
             \EndWhile
-    	\EndProcedure
+    	\EndFunction
 	\end{algorithmic}
 \end{algorithm}
 
@@ -494,20 +494,6 @@ with ISPC code. Under this condition, we can have two approaches to implement ou
 sampling process. 
 
 
-% ISPC, which is the Intel SPMD
-% Program Compiler, supports that a number of program instances execute the application
-% in parallel on hardware.
-% In the OSPRay rendering pipeline, the sampling process is implemented with ISPC code
-% since it is independent. Under this condition, there are two approaches to implement
-% our sampling process. 
-
-% Note that we construct the bricktree forest with C/C++ code and visualize the hierarchical
-% structure within the OSPRay ray tracing framework, which is internally built on top of
-% Embree\cite{wald2014embree} and ISPC\cite{pharr2012ispc}.
-% We fully utilize modern instruction sets on many-core CPU architectures. 
-% \par
-% We will now discuss several different ways to implement the sample function. 
-
 
 %----------------------------------
 \subsection{C/C++ Serial Implementation}
@@ -526,9 +512,9 @@ the C/C++ implementation of the sampling function from the ISPC code (\textit{pr
 \begin{algorithm}
 	\caption{Pseudocode for serially calling the C++ version of sampling function from ISPC code. }\label{alg:ispc_sample}
 	\begin{algorithmic}[1]
-		\Procedure{Bt\_ISPC\_Sample}{\textbf{varying} samplePos}
-        	\State \textit{\textbf{uniform} uPos[programCount]}
-            \State \textit{\textbf{uniform} uValue[programCount]}
+		\Procedure{Bt\_ISPC\_Sample}{\textbf{varying vec3f} samplePos}
+        	\State \textit{\textbf{uniform vec3f} uPos[programCount]}
+            \State \textit{\textbf{uniform float} uValue[programCount]}
             \State $uPos[programIndex] \gets samplePos$
             \State \textbf{foreach\_active}$(lane)$ \textbf{do}
             	\State \ \ \ \ $uValue[lane] \gets Bt\_Cplus\_Sample(uPos[lane])$
@@ -571,7 +557,7 @@ By employing this technique, our implementation can scale to the workstation's a
 memory. However, the implementation has some performance penalties, because 64-bit addressing is slightly more costly than 32-bit addressing. In an ideal case, memory accesses are mostly coherent, and only a few iterations of the aforementioned loop are necessary.
 \feng{
 In the worst case, many iterations are needed. However, the performance is still superior to
-the performance when we recompile our application in 64-bit.}
+the performance when we run our application in ISPC 64-bit addressing mode.}
 %due to TLB walks. Nonetheless, we found that our
 %segment-based approach is preferable to recompiling our application in 64-bit mode. 
 
@@ -588,8 +574,10 @@ Valuebrick.
 Ideally, only one traversal of the Bricktree rather than eight is needed for a given 
 sample point. In practice, the speed-up is lower than 8x, since we need to
 retraverse the tree for the neighboring voxels that are located in neighboring
-Valuebricks. Some solutions avoid the retraverse by replicating a layer of ghost voxels
-at the brick's boundary, which is a trade-off between time and space. For large datasets, 
+Valuebricks. 
+%Some solutions avoid the retraverse by replicating a layer of ghost voxels
+%at the brick's boundary, which is a trade-off between time and space. 
+For large datasets, 
 data overhead with this approach will be high when a small brick size is used. Benefiting 
 from the large branching factor of our data structure, the generated Bricktrees will keep
 a small tree depth. Hence, the retraversal at the brick boundary will only slightly impact the performance. 
@@ -601,48 +589,15 @@ but with inefficient empty space skipping
 By performing the optimization mentioned above, we achieve a 4-5x
 performance improvement for $N=4$. 
 
-
-\begin{algorithm}
-	\caption{Sampling function with progressive rendering on top of our Bricktree 
-    structure}\label{alg:sample_and_stream}
-	\begin{algorithmic}[1]
-        \Procedure{Bt\_ISPC\_GetVoxels}{$bt, coord$}
-        	\State $cBrickID\gets \textit{0}$\Comment{current brick, set to root}
-            \State $pBrickID\gets \textit{$-1$}$\Comment{parent brick}
-            \State \textit{\textbf{uniform} \textbf{FindStack} stack[16]}\Comment{ISPC stack struct}
-            \State $stackPtr\gets pushStack(\&stack[0], cBrickID, pBrickID)$
-            \While{stackPtr $>$ stack}
-            	\State $--stackPtr$
-                \If {stackPtr is active} 
-                	\State $cBrickID \gets stackPtr.cBrickID$
-                    \State $pBrickID \gets stackPtr.pBrickID$
-                    \If {current brick is not requested} 
-                    	\State $bt.brickStatus[cBrickID].isRequested \gets true$
-                    \EndIf
-                    \State
-                    \If {$bt.brickStatus[cBrickID].isLoaded$} 
-                		\State $childBrickID \gets getChildBrickID()$
-            			\State $cOffset \gets ComputeOffset(coord)$
-                		\If {$childBrickID = -1$} 
-                			\State \textbf{return} value in current brick
-               			\Else
-                			\State $stackPtr\gets pushStack(stackPtr,childBrickID, cBrickID)$
-                		\EndIf
-                	\Else
-                		\State \textbf{return} average value in parent brick
-                	\EndIf
-                 \EndIf
-            \EndWhile
-    	\EndProcedure
-	\end{algorithmic}
-\end{algorithm}
-
-\begin{figure}[b]
+\begin{figure}[h]
   \centering
     \includegraphics[width=0.5\textwidth]{LoadByLevel}
     \caption{\label{fig:loadbylevel}An illustration of streaming the Valuebrick by level. Colored nodes are requested in current time. The red arrow indicates the loading sequence.}
     %\vspace{-1em}
 \end{figure}
+
+
+
 
 \begin{figure*}[t]
     \centering
@@ -678,13 +633,12 @@ performance improvement for $N=4$.
 
 %-------------------------------------------------------------------------
 \section{Ray-Guided Progressive Rendering}
-The long waiting times of loading data from disk significantly
-influence the user experience in an interactive visualization. 
-In this section, we describe the solution to reducing IO latency with data streaming and progressive rendering. 
-% we will discuss how we progressively stream and render the bricks
-% represented by the bricktree forest.
-Data streaming and rendering are decoupled in
-our visualization pipeline. If the requested data are not yet in memory, the renderer uses 
+%The long waiting times of loading data from disk significantly
+%influence the user experience in an interactive visualization. 
+%In this section, we describe the solution to reducing IO latency with data streaming and progressive rendering. 
+Benefited from the design, our Bricktree naturally leads to progressive rendering
+where data streaming and rendering are decoupled in
+the visualization pipeline. If the requested data are not yet in memory, the renderer uses 
 the average value stored in the (already loaded) parent node
 and requests the missing brick from a data loading thread. Consequently,
 the visualization process can be launched very quickly without waiting for the large
@@ -710,11 +664,13 @@ is more straightforward, and it avoids CPU-GPU communications and the complex da
 needed to store the rendering context. As mentioned in~\Cref{sec:bricktree_layout},
 each Bricktree stores a linear array of Valuebricks. All we need to do is maintain a
 status for each Valuebrick and update it correctly according to the rendering context.
-In our solution, the \textit{isrequested} and \textit{isloaded} flags are
-used to identify the current status of a Valuebrick. In our sample function, 
-the \textit{isrequested} flag of a Valuebrick is set when we need to load the Valuebrick
+In our solution, two additional bits (\textit{isRequested} and \textit{isLoaded}) are stored 
+for each brick and used to identify the brick's current status. In our sample function, 
+\textit{isRequested} is set when we need to load the Valuebrick
 into memory, which allows us to implement a visibility-based solution that requests only
 data that are inside the view frustum. 
+
+
 
 
 %---------------------
@@ -727,7 +683,7 @@ the Valuebrick is loaded.
 % The implementation in the GigaVoxel paper requires costly
 % CPU-GPU communication, as well as an update of a CPU-hosted backing structure.
 % Although our implementation does not involve a GPU, 
-This approach is unacceptable for interactive visualization when many Valuebricks are missing 
+This approach is problematic for interactive visualization when many Valuebricks are missing 
 due to the prohibitive IO latency incurred by Valuebrick loads. Given that the inner node
 in the Bricktree stores the average values of its child nodes, we adopted an
 asynchronous approach for volume integration. We use the average value as an
@@ -735,6 +691,40 @@ approximation for the current sample point when we request the Valuebrick and
 refine the output image when the Valuebrick is loaded in separate threads. 
 \Cref{alg:sample_and_stream} depicts the pseudo-code of this process. 
 
+\begin{algorithm}[h]
+	\caption{Sampling function with progressive rendering on top of our Bricktree 
+    structure}\label{alg:sample_and_stream}
+	\begin{algorithmic}[1]
+        \Procedure{Bt\_ISPC\_GetVoxels}{$bt, coord$}
+        	\State $cBrickID\gets \textit{0}$\Comment{current brick, set to root}
+            \State $pBrickID\gets \textit{$-1$}$\Comment{parent brick}
+            \State \textit{\textbf{uniform} \textbf{FindStack} stack[16]}\Comment{ISPC stack struct}
+            \State $stackPtr\gets pushStack(\&stack[0], cBrickID, pBrickID)$
+            \While{stackPtr $>$ stack}
+            	\State $--stackPtr$
+                \If {stackPtr is active} 
+                	\State $cBrickID \gets stackPtr.cBrickID$
+                    \State $pBrickID \gets stackPtr.pBrickID$
+                    \If {current brick is not requested} 
+                    	\State $bt.brickStatus[cBrickID].isRequested \gets true$
+                    \EndIf
+                    \State
+                    \If {$bt.brickStatus[cBrickID].isLoaded$} 
+                		\State $childBrickID \gets getChildBrickID()$
+            			\State $cOffset \gets ComputeOffset(coord)$
+                		\If {$childBrickID = -1$} 
+                			\State \textbf{return} value in current brick
+               			\Else
+                			\State $stackPtr\gets pushStack(stackPtr,childBrickID, cBrickID)$
+                		\EndIf
+                	\Else
+                		\State \textbf{return} average value in parent brick
+                	\EndIf
+                 \EndIf
+            \EndWhile
+    	\EndProcedure
+	\end{algorithmic}
+\end{algorithm}
 
 %---------------------
 \subsubsection{Valuebrick Loading Strategy}
@@ -786,7 +776,7 @@ takes relatively little time, and we can achieve smooth visual refinement of our
 Another factor that improves progressive refinement performance is Valuebrick load speed,
 although this is highly dependent on IO throughput. Due to the design of the Bricktree ``forest'', 
 the levels of the Bricktree can be loaded in parallel, since each process is independent.
-For example, we can load level 2 of tree 1 and tree 2 in parallel using $tbb::tasking\_parallel$. 
+For example, we can load level 2 of tree 1 and tree 2 in parallel using $tbb::parallel\_for$. 
 Compared to serial streaming, we observe that parallel streaming significantly improves performance. 
 
 
@@ -802,15 +792,17 @@ can be stopped at an inner node that reaches the appropriate level of detail (LO
 \subsubsection{Level-of-Detail Control}
 Some primitives are smaller than the output device pixels when rendering a
 large dataset at low magnification\cite{rusinkiewicz2000qsplat}. Generally, in this case,
-it is hard to tell the visual difference in the interactive rendering if we use higher resolution data. 
-One general-purpose approach to 
-reduce rendering time is to store data at a discrete level of detail and select a lower resolution LOD with primitives that more closely matches the display resolution. 
+it is hard to tell the visual difference in the interactive rendering if we use higher
+resolution data. 
+One general-purpose approach to reduce loading and rendering time is to store data at a discrete
+level of detail and select a lower resolution LOD with primitives that more closely matches the
+display resolution. 
 
 In this work, it is easy to apply LOD-based ideas, since an inner node can be interpreted as
 a coarser representation of its descendants. During traversal, we calculate the projected
 screen space area of a Valuebrick and stop the traversal if the area is smaller than a 
 user-defined threshold. To simplify computation, we use a sphere as an approximation of a cubic
-Valuebrick. By setting the threshold to one pixel, we achieve a 2.5x speed-up when we 
+brick. By setting the threshold to one pixel, we achieve a 2.5x speed-up when we 
 zoom out and view the DNS dataset at low magnification. 
 
 
@@ -859,9 +851,8 @@ reconnection volume\cite{guo2014formation}), to medium (e.g., the Richtmyer-Mesh
 \item The cardiac volumes were obtained by way of computed tomography (CT) imaging on excised,
 postmortem porcine hearts. The resolution of the data is $2048 \times 2048 \times 2612$. With a data
 type of int16, the size of the data goes up to 21 GB. 
-%  Alginate curing agents were injected into ventricles to provide rigidity and radiopaque agents were injected into the coronary arteries to distinguish microvasculature from the rest of the tissue
-\item The DNS, produced by the Institute for Computational Engineering and Science (ICES) at the University
-of Texas-Austin, is a single $10240 \times 7680 \times 1536$ double precision volume (size: 900 GB) from a turbulent flow simulation. 
+\item The DNS, produced by the Institute for Computational Engineering and Science (ICES) at the
+	University of Texas-Austin, is a single $10240 \times 7680 \times 1536$ double precision volume (size: 900 GB) from a turbulent flow simulation. In our experiments, we convert it into float version (450 GB).  
 \end{itemize}
 
 \begin{figure}[h]
@@ -875,7 +866,7 @@ of Texas-Austin, is a single $10240 \times 7680 \times 1536$ double precision vo
     \begin{subfigure}[b]{0.9\columnwidth}
         \includegraphics[width=\textwidth]{exp_ospray_bricktree_2}
         \vspace{-1em}
-        \caption{Waiting time before rendering the first frame}
+        \caption{Loading time before rendering the first frame}
         \label{fig:exp_ospray_bricktree_waitingtime}
     \end{subfigure}
 	\caption{\label{fig:exp_ospray_bricktree}%
@@ -885,20 +876,32 @@ of Texas-Austin, is a single $10240 \times 7680 \times 1536$ double precision vo
 
 %----------------------------------
 \subsection{Existing OSPRay Renderer vs. Bricktree Module}
-Although the existing OSPRay volume renderer provides limited support for rendering large 
-volumes on CPU, it can suffer from prohibitive IO latency, because all 
-the data must be loaded into memory before the first frame can be rendered.
+%Although the existing OSPRay volume renderer provides limited support for rendering large 
+%volumes on CPU, it can suffer from prohibitive IO latency, because all 
+%the data must be loaded into memory before the first frame can be rendered.
 
 \feng{
-\Cref{fig:exp_ospray_bricktree} illustrates the trade-off between overall performance
-and loading time when volume rendering with our Bricktree module against the pre-existing
-OSPRay renderer.
-The overall performance of the Bricktree module is around $35\%$
-lower compared to the OSPRay renderer, since use of the Bricktree necessitates a hierarchy
-traversal. By contrast, the existing OSPRay renderer uses a standard structured volume
-representation, allowing data to be queried using simple math operations. 
-Despite some performance loss, \Cref{fig:exp_ospray_bricktree_framerate}
-indicates that our Bricktree module still runs at interactive framerates. 
+In this section, we first compare the overall performance and loading time before rendering
+the first frame between our Bricktree module and the existing OSPRay volume renderer.
+It is a trade-off. 
+For our Bricktree module, every individual sample requires traversing a hierarchical data
+structure, whereas the existing OSPRay volume renderer uses a standard structured volume and
+allows data to be queried using simple math operations.
+One would in fact expect each sample to be several times as costly as for the 
+the reference renderer. However, given our access friendly data layout and ISPC-optimized tree
+traversal, we see in \Cref{fig:exp_ospray_bricktree} that rendering performance for fully loaded 
+data is only about $35\%$ slower. Despite some performance loss, 
+\Cref{fig:exp_ospray_bricktree_framerate} indicates that our Bricktree module still runs
+at interactive framerates.
+%\Cref{fig:exp_ospray_bricktree} illustrates the trade-off between overall performance
+%and loading time when volume rendering with our Bricktree module against the pre-existing
+%OSPRay renderer.
+%The overall performance of the Bricktree module is around $35\%$
+%lower compared to the OSPRay renderer, since use of the Bricktree necessitates a hierarchy
+%traversal. By contrast, the existing OSPRay renderer uses a standard structured volume
+%representation, allowing data to be queried using simple math operations. 
+%Despite some performance loss, \Cref{fig:exp_ospray_bricktree_framerate}
+%indicates that our Bricktree module still runs at interactive framerates. 
 }
 
 \feng{
@@ -911,9 +914,9 @@ load only metadata prior to rendering. With both renderers, loading time increas
 data size. However, our Bricktree module slows down much less. For instance, without
 the Bricktree module, users must wait more than 20 minutes on the test workstation (FSM)
 before being able to see a ``bird's eye view'' of the DNS dataset.
-By contrast, with our Bricktree module, the DNS dataset loads in under 40 seconds.
-Therefore, we believe that the Bricktree module is a better choice for rendering large datasets,
-while the existing OSPRay volume renderer works better for small- to moderate-size datasets. 
+By contrast, with our Bricktree module, we get an overview of the DNS dataset in under 40 seconds.
+%Therefore, we believe that the Bricktree module is a better choice for rendering large datasets,
+%while the existing OSPRay volume renderer works better for small- to moderate-size datasets. 
 }
 
 
@@ -955,7 +958,7 @@ DNS(450 GB, float), which is a very dense dataset.
 		\bottomrule
 	\end{tabularx}
 	\caption{An evaluation of tree build time, tree size, loading time, stream performance (s/1000 Valuebricks) and overall performance with different brick sizes on a sparse dataset (RMI) and a dense dataset (DNS). The evaluataion was run on FSM. The tree build process was executed in parallel with eight processors.}
-	%\vspace{-1em}
+	\vspace{-1.5em}
 	\label{table:brick_size}
 \end{table}
 
@@ -974,7 +977,7 @@ a brick size of 4 produces a smaller tree and performs better than a brick size 
 A brick size of 2 hampers performance and tree size, possibly due to an increased number of
 inner nodes resulting from greater tree depth. 
 
-\begin{figure}[t]
+\begin{figure}[b]
     \centering
     \includegraphics[width=\columnwidth]{exp_threshold}
     \vspace{-2em}
@@ -982,6 +985,17 @@ inner nodes resulting from greater tree depth.
 	A comparison of tree build time, size ratio (tree size / volume size) and overall performance with different thresholds on the DNS dataset.}
 	\vspace{-0.5em}
 \end{figure}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{exp_threshold_2_b}
+	\caption{\label{fig:exp_threshold_2}%
+	A comparison of the output image rendered with four thresholds on the magnetic dataset (512~MB).
+	With an appropriate threshold, such as 0.05, we achieve significant performance improvement and produce a final image that is slightly different from ground truth (thres: 0).
+% 	Qualitatively, only a slight difference can be discerned in the images.
+	}
+	%\vspace{-0.5em}
+\end{figure*}
 
 
 For a dense dataset (e.g., DNS), where values vary in almost all cells,
@@ -1003,18 +1017,9 @@ brick size outperforms an octree in terms of framerate, tree size,
 tree construction time and loading time. 
 }
 
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=\textwidth]{exp_threshold_2_b}
-	\caption{\label{fig:exp_threshold_2}%
-	A comparison of the output image rendered with four thresholds on the magnetic dataset (512~MB).
-	With an appropriate threshold, such as 0.05, we achieve significant performance improvement and produce a final image that is slightly different from ground truth (thres: 0).
-% 	Qualitatively, only a slight difference can be discerned in the images.
-	}
-	%\vspace{-0.5em}
-\end{figure*}
 
-\subsection{Bricktree Compression}
+
+\subsection{Compression Results}
 In ~\Cref{sec:hierarchy_generation}, we described how a threshold could be specified 
 in order to collapse a specific input region of volume during the hierarchy generation.
 By using the default value 0, we produced a lossless hierarchical representation of
@@ -1068,8 +1073,9 @@ In this section, we evaluate the performance of the ``\textit{ospRawToBrick}'' t
 Tree generation time, which benefits from the parallel build processes, drops
 dramatically by running multiple jobs simultaneously. \Cref{fig:exp_buildtime} shows
  hierarchy generation time with three datasets. For the RMI dataset, \cite{fogal2013analysis} claims that the generation time of their hierarchy structure takes
-about 13 minutes in the best case. However, with our solution, it only takes 1.49 seconds using eight processes. 
-
+about 13 minutes in the best case. However, with our solution, it only takes 1.49 seconds using
+eight processes. For the DNS datasets, we reduce the offline construction time from 5 hours with 
+one processor to 1.5 hours with eight processors. 
 
 
 \section{Conclusion}
@@ -1094,13 +1100,16 @@ Finally, we implemented our solution as a module for the OSPRay ray tracing fram
 
 %Our OSPRay module can also be leveraged by existing work integrating OSPRay into ParaView and VTK, to provide similar results to production visualization users. 
 
+\feng{
 In the future, we hope to further investigate data compression.  
 For instance, Valuebricks are natural candidates for float-point data compression using ZFP
-\cite{lindstrom2014fixed}.
-Furthermore, a detailed quantitative analysis of how the lossy compression
-threshold affects final image quality should be performed. 
-Eventually, we would like to integrate the Bricktree module into
-general-purpose visualization frameworks. 
+\cite{lindstrom2014fixed}. In addition, a detailed quantitative analysis of how the lossy
+compression threshold affects final image quality should be performed. 
+On the other hand, a hierarchical structure naturally leads to adaptive sampling. 
+It is interesting to futher apply the adaptive sampling to our Bricktree module. 
+Eventually, we would like to apply our Bricktree into general-purpose visualization frameworks. 
+It is also interesting to look at the Bricktree structure in GPUs architecture. 
+}
 
 
 

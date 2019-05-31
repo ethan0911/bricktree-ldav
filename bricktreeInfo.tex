@@ -75,7 +75,7 @@ We build our approach on a hierarchical data structure -- \textit{Bricktree} -- 
 for a hierarchical representation of the volume. During the rendering, we stream the
 necessary data on demand with separate threads and employ ray-guided progressive
 rendering for data refinement. As an extension of the OSPRay ray tracing 
-framework, which already contains various techniques for visualizing scientific data \cite{wald2017ospray,wang2018cpu}, we build a Bricktree
+framework, which already contains various techniques for visualizing scientific data \cite{wald2017ospray,wang2019cpu,han_ray_2019}, we build a Bricktree
 module along with an efficient hierarchy generation tool to support large-scale data
 visualization on multi-core workstations. Given that OSPRay has been integrated into
 Paraview and VisIt, our module is ready to be integrated into general-purpose

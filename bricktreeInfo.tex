@@ -280,7 +280,7 @@ represents a set of $N^D \times N^D \times N^D$ voxels in the volume.
 %}
 
 
-In memory, each $BrickTree<N,T>$ is represented as three linear arrays:
+In memory, each $BrickTree<N,T>(D)$ is represented as three linear arrays:
 \begin{enumerate}
 \item One linear array of Valuebricks, where each Valuebrick contains
 $N \times N \times N$ values of type T.
@@ -727,14 +727,13 @@ progressive refinement strategy. Given the layout of our Bricktree, three choice
                     \If {current brick is not requested} 
                     	\State $bt.brickStatus[cBrickID].isRequested \gets true$
                     \EndIf
-                    \State
                     \If {$bt.brickStatus[cBrickID].isLoaded$} 
                 		\State $childBrickID \gets getChildBrickID()$
             			\State $cOffset \gets ComputeOffset(coord)$
                 		\If {$childBrickID = -1$} 
                 			\State \textbf{return} value in current brick
                			\Else
-                			\State $stackPtr\gets pushStack(stackPtr,childBrickID, cBrickID)$
+                			\State $pushStack(stackPtr,childBrickID, cBrickID)$
                 		\EndIf
                 	\Else
                 		\State \textbf{return} average value in parent brick
@@ -1081,8 +1080,9 @@ Tree generation time, which benefits from the parallel build processes, drops
 dramatically by running multiple jobs simultaneously. \Cref{fig:exp_buildtime} shows
  hierarchy generation time with three datasets. For the RMI dataset, \cite{fogal2013analysis} claims that the generation time of their hierarchy structure takes
 about 13 minutes in the best case. However, with our solution, it only takes 1.49 seconds using
-eight processes. For the DNS datasets, we reduce the offline construction time from 5 hours with 
-one processor to 1.5 hours with eight processors. 
+eight processes. 
+\feng{For the DNS datasets, we reduce the offline construction time from 5 hours with 
+one processor to 1.5 hours with eight processors.}
 
 
 \section{Conclusion}

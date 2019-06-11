@@ -218,12 +218,12 @@ but also avoids encoding a large empty space when the structured volume is not a
 cube ($M \neq L \neq K $).
 Overall, a Bricktree is a generalization of an octree where we subdivide a node by $N^3$
 rather than by $2^3$. Furthermore, a Bricktree is similar to the $N^3$-tree in terms of  data structure,
-but different with respect to data layout in memory. Each cell in an $N^3$-tree node stores either a data
-value (for a leaf node) or a reference to the children (for an inner node). If we expect to apply progressive rendering and store data values for inner nodes in Lefebvre's $N^3$-tree \cite{lefebvre2005octree}, we have to save another index buffer in the large texture and assign an
+but different with respect to data layout in memory. In an $N^3$-tree node, each cell stores either a data
+value (for a leaf node) or a reference to the children (for an inner node). In this case if we expect to store data values for inner nodes to apply progressive rendering, we have to save another index buffer in the large texture and assign an
 invalid index (-1) for each cell in a brick when no
-cell has children. The number of those indices adds up to $N^3$ for an $N^3$ brick. In a Bricktree, we represent bricks with two separate buffers. This choice allows us to save memory 
-and store only one invalid index for $N^3$ cells in a brick
-if no cell has children. 
+cell has children. The number of those indices adds up to $N^3$ for an $N^3$ brick. However, in a Bricktree, we represent bricks with two separate buffers. This choice allows us to save memory 
+and store only one invalid index for an $N^3$ brick
+if no cell of this brick has children. 
 In the  next section, we will introduce the Bricktree layout in detail.
 % whereas in a Bricktree node always store a data value. 
 % In a Bricktree, we intentionally store the value and reference in separate buffers so that we could 

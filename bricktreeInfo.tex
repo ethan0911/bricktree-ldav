@@ -879,7 +879,7 @@ type of int16, the size of the data goes up to 21 GB.
         \caption{Overall performance}
         \label{fig:exp_ospray_bricktree_framerate}
     \end{subfigure}
-    \begin{subfigure}[b]{0.9\columnwidth}
+    \begin{subfigure}[b]{0.92\columnwidth}
         \includegraphics[width=\textwidth]{exp_ospray_bricktree_2}
         \vspace{-1em}
         \caption{Loading time before rendering the first frame}
@@ -896,7 +896,6 @@ type of int16, the size of the data goes up to 21 GB.
 %volumes on CPU, it can suffer from prohibitive IO latency, because all 
 %the data must be loaded into memory before the first frame can be rendered.
 
-\feng{
 In this section, we first compare the overall performance and loading time before rendering
 the first frame between our Bricktree module and the existing OSPRay volume renderer.
 It is a trade-off. 
@@ -923,7 +922,6 @@ material.}
 %representation, allowing data to be queried using simple math operations. 
 %Despite some performance loss, \Cref{fig:exp_ospray_bricktree_framerate}
 %indicates that our Bricktree module still runs at interactive framerates. 
-}
 
 % \begin{figure}[h]
 %     \centering
